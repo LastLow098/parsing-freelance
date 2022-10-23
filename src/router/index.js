@@ -1,15 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import FormView from "@/views/FormView";
+import Main from '@/views/Main'
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: FormView
+    component: Main
   }
 ]
 
 const router = createRouter({
+  // eslint-disable-next-line no-undef
   history: createWebHistory(process.env.BASE_URL),
   routes
 })

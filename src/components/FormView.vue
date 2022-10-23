@@ -66,7 +66,7 @@ export default {
     &_input {
       height: 40px;
       width: 300px;
-      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.35);
+      box-shadow: 0px 0px 5px $shadow-color;
       -webkit-border-radius: 10px;
       -moz-border-radius: 10px;
       border-radius: 10px;

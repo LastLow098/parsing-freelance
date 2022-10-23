@@ -7,20 +7,21 @@
       <i :class="`bi bi-caret-${isOptionsShow ? 'up' : 'down'}-fill select-finish__open`"></i>
       <div class="select-finish__item" v-for="option in selectedOptions" :key="option">{{ option }}</div>
     </div>
-    <div class="select-options" v-if="isOptionsShow">
+    <div class="select-options" v-show="isOptionsShow">
       <div class="select-options__item">
         <app-check
             :label="'Выбрать всё'"
             :id="'all'"
-            @change="actionAll($event)"
+            @update:model-value="actionAll"
         ></app-check>
       </div>
-      <div class="select-options__item" v-for="option in options" :key="option.value">
+      <div class="select-options__item" v-for="(option, index) in options" :key="option.value">
         <app-check
             :label="option.name"
             :id="option.value"
             :disabled="isActionAll"
-            @change="changeChecked($event, option)"
+            :model-value="checked[index]"
+            @update:model-value="changeChecked($event, option, index)"
         ></app-check>
       </div>
     </div>
@@ -39,19 +40,24 @@ export default {
     options: {
       type: Array,
       default: () => []
-    }
+    },
   },
   data() {
     return {
       selectedOptions: [],
       isActionAll: false,
-      isOptionsShow: false
+      isOptionsShow: false,
+      checked: []
     }
   },
+  mounted() {
+    this.clearChecked()
+  },
   methods: {
-    changeChecked(event, option) {
+    changeChecked(checked, option, index) {
+      this.checked[index] = checked
       let result;
-      if (event.target.checked) {
+      if (checked) {
         result = [...this.modelValue, option.value]
         this.selectedOptions = [...this.selectedOptions, option.name]
       } else {
@@ -60,8 +66,9 @@ export default {
       }
       this.$emit('update:modelValue', result)
     },
-    actionAll(event) {
-      this.isActionAll = event.target.checked
+    actionAll(checked) {
+      this.isActionAll = checked
+      this.clearChecked()
       if (this.isActionAll) {
         this.$emit('update:modelValue', this.options.map(elem => elem.value))
         this.selectedOptions = this.options.map(elem => elem.name)
@@ -69,6 +76,9 @@ export default {
         this.$emit('update:modelValue', [])
         this.selectedOptions = []
       }
+    },
+    clearChecked() {
+      this.checked = this.options.map(() => false)
     }
   }
 }

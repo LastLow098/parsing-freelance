@@ -1,13 +1,22 @@
 <template>
-  <input type="checkbox" :id="id" :disabled="disabled" @change="$emit('change', $event)">
+  <input
+      type="checkbox"
+      :id="id"
+      :disabled="disabled"
+      :checked="modelValue"
+      @change="$emit('update:modelValue', $event.target.checked)"
+      >
   <label :for="id">{{label}}</label>
 </template>
 
 <script>
 export default {
   name: 'app-check',
-  emits: ["change"],
   props: {
+    modelValue: {
+      type: Boolean,
+      default: false
+    },
     id: {
       type: String,
       required: true
@@ -18,13 +27,7 @@ export default {
     },
     disabled: {
       type: Boolean
-    },
-
-    // TODO: Реализовать нормальное двухсторонее связыване на основе checked
-    // changed: {
-    //   type: Boolean,
-    //   default: false
-    // }
+    }
   }
 }
 </script>

@@ -13,7 +13,7 @@
       <app-button @click="openModal(ad)">
         <i class="bi bi-pen"></i>
       </app-button>
-      <app-button>
+      <app-button @click="removeAd(ad.id)">
         <i class="bi bi-x-lg"></i>
       </app-button>
     </div>
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import {mapMutations} from 'vuex'
+import {mapActions, mapMutations} from 'vuex'
 
 export default {
   name: 'app-ad',
@@ -30,19 +30,32 @@ export default {
       type: Object,
       default: () => {
       }
+    },
+    option: {
+      type: Object,
+      required: true
     }
   },
   methods: {
+    ...mapActions({
+      deleteAd: 'deleteAd'
+    }),
     ...mapMutations({
       setAd: 'setChangingAd',
-      setIsShowModal: 'setIsShowModal'
+      setIsShowModal: 'setIsShowModal',
+      setOption: 'setActiveOption'
     }),
     getTags(keywords) {
       return keywords.split(', ')
     },
     openModal(ad) {
-      this.setAd(ad);
+      this.setAd({...ad});
+      this.setOption(this.option)
       this.setIsShowModal(true)
+    },
+    removeAd(id) {
+      this.setOption(this.option)
+      this.deleteAd(id)
     }
   }
 }

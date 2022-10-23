@@ -3,20 +3,22 @@
     <div class="change-ad__content">
       <div class="change-ad__title">Редактирование объявления</div>
 
-      <input class="change-ad__input" type="text" :value="changingAd?.title">
+      <input class="change-ad__input" type="text"
+             v-model="changingAd.title">
 
-      <textarea class="change-ad__textarea" :value="changingAd?.article"></textarea>
+      <textarea class="change-ad__textarea"
+                v-model="changingAd.article"></textarea>
 
       <div class="change-ad__btns">
-        <app-button>Cохранить</app-button>
-        <app-button>Отменить</app-button>
+        <app-button @click="changeAd">Cохранить</app-button>
+        <app-button @click="setIsShow(false)">Отменить</app-button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 export default {
   name: 'app-change-ad',
   computed: {
@@ -24,6 +26,19 @@ export default {
       isShow: 'getIsShowModal',
       changingAd: 'getChangingAd'
     })
+  },
+  methods: {
+    ...mapMutations({
+      setChangingAd: 'setChangingAd',
+      setIsShow: 'setIsShowModal'
+    }),
+    ...mapActions({
+      changeAd: 'changeAd'
+    }),
+    change() {
+      this.setIsShow(false)
+      this.changeAd
+    }
   }
 }
 </script>
@@ -49,7 +64,7 @@ export default {
     position: absolute;
     right: 0;
     top: 0;
-    width: 400px;
+    width: 500px;
     height: 100vh;
     background: #ffffff;
 
@@ -63,7 +78,7 @@ export default {
   }
 
   &__input, &__textarea {
-    width: 300px;
+    width: 90%;
     box-shadow: 0px 0px 5px $shadow-color;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;

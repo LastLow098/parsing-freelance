@@ -1,13 +1,11 @@
 import axios from "axios"
-// eslint-disable-next-line no-unused-vars
-import {catchError, delay, firstValueFrom, Observable, repeat, retryWhen, shareReplay, throwError} from 'rxjs'
 
 export const freelanceModule = {
     state: {
         ads: {},
         options: [
-            {name: 'Freelance', value: "1"},
-            {name: 'Kwork', value: "2"}
+            {name: 'freelancehabr', value: "1", server: 'freelancehabr'},
+            {name: 'kwork', value: "2", server: 'kworkservice'}
         ],
         config: {
             id_user: 5,
@@ -16,8 +14,8 @@ export const freelanceModule = {
             sources: [],
             hash_parsource: "test_hash_string2"
         },
-        hash_parsource: "test_hash_string2",
-        countParsing: 0
+        countParsing: 0,
+        isParsingFinish: false
     },
     getters: {
         getOptions(state) {
@@ -33,7 +31,10 @@ export const freelanceModule = {
             return state.ads
         },
         getHash(state) {
-            return state.hash_parsource
+            return state.config.hash_parsource
+        },
+        getIsParsingFinish(state) {
+            return state.isParsingFinish
         }
     },
     mutations: {
@@ -45,11 +46,22 @@ export const freelanceModule = {
         },
         setAds(state, ads) {
             state.ads = ads
+        },
+        setCount(state, count) {
+            state.countParsing = count
+        },
+        setHash(state, hash) {
+            state.config.hash_parsource = hash
+        },
+        setIsParsingFinish(state, boolean) {
+            state.isParsingFinish = boolean
         }
     },
     actions: {
-        async createPars({state, dispatch}) {
+        async createPars({state, dispatch, commit}) {
             try {
+                dispatch('show', { message: "Загрузка...", style: "loading"})
+                commit('setHash', Date.now())
                 await axios.post(`/parser-config/`, state.config, {
                         headers: {
                             "Authorization": "Api-Key VSfHLDHK.MM3MeLZNV9HMDEY5s1zz4Yl79lbRwoux",
@@ -58,16 +70,19 @@ export const freelanceModule = {
                         }
                     }
                 )
-
                 await dispatch('getParsing')
+                dispatch('hide')
             } catch (e) {
-                alert(e)
+                console.error(e)
+                dispatch('show', { message: "Запрос не был получен", style: "error"})
             }
         },
         async getParsing({state, commit, dispatch}) {
             try {
+                commit('setIsParsingFinish', false)
+                dispatch('show', { message: "Загрузка...", style: "loading"})
                 const response = await axios.get(`/parser-config/`, {
-                        params: { hash_parsource: state.hash_parsource },
+                        params: { hash_parsource: state.config.hash_parsource },
                         headers: {
                             "Authorization": "Api-Key VSfHLDHK.MM3MeLZNV9HMDEY5s1zz4Yl79lbRwoux",
                             "Content-Type": "application/json;charset=UTF-8",
@@ -78,18 +93,25 @@ export const freelanceModule = {
 
                 const res = response.data.at(-1)
 
-                if ((res.kwork_result.length === 0 || res.freelancehabr_result.length === 0) && state.countParsing !== 10) {
+                if (state.countParsing !== 10) {
                     setTimeout(() => {
-                        ++state.countParsing
+                        commit('setCount', state.countParsing + 1)
                         dispatch('getParsing')
-                    }, 4000)
+                        commit('setMessage', `Загрузка... Запрос: ${state.countParsing}`)
+                        // dispatch('show', { message: `Загрузка... Запрос: ${state.countParsing}`, style: "loading"})
+                    }, 3000)
+                }else {
+                    dispatch('hide')
+                    commit('setCount', 0)
+                    commit('setIsParsingFinish', true)
                 }
 
                 commit('setAds', res)
-                console.log(res)
+
 
             }catch (e) {
-                alert(e)
+                console.error(e)
+                dispatch('show', { message: "Запрос не был получен", style: "error"})
             }
         }
     }

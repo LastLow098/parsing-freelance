@@ -10,7 +10,7 @@
       <input
           class="form-parsing__keywords_input"
           type="text"
-          placeholder="Ключевые слова для поиска"
+          placeholder="Ключевые слова (через запятую)"
           :value="keywords"
           @input="setKeywords($event.target.value)"
       >
